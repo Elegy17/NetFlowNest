@@ -1,4 +1,6 @@
-#谷歌推送FCM可用hosts
+# 谷歌推送FCM可用hosts
+# 十七编写
+
 203.208.41.95 services.googleapis.com
 203.208.50.95 services.googleapis.com
 203.208.40.120 services.googleapis.com
@@ -30,6 +32,7 @@
 74.125.140.188 mtalk.google.com
 64.233.185.188 mtalk.google.com
 173.194.221.188 mtalk.google.com
+
 #22.08.22
 172.253.113.188 alt7-mtalk.google.com
 173.194.77.188 alt6-mtalk.google.com
