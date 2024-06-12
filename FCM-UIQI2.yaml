@@ -19,6 +19,18 @@ payload:
   - DOMAIN,alt8-mtalk.google.com,DIRECT
   - DOMAIN,mtalk.google.com,DIRECT
 
+  - IP-CIDR6,2404:6800::/32,no-resolve
+  - IP-CIDR6,2401:3800::/32,no-resolve
+  - IP-CIDR6,2404:6800:4008:c07::bc/128,no-resolve
+  - IP-CIDR6,2607:f8b0:4023:c0b::bc/128,no-resolve
+  - IP-CIDR6,2607:f8b0:4023:1::bc/128,no-resolve
+  - IP-CIDR6,2607:f8b0:4002:c03::bc/128,no-resolve
+  - IP-CIDR6,240e:97c::/36,PROXY,no-resolve
+  - IP-CIDR6,240e:978:d00::/40,PROXY,no-resolve
+  - IP-CIDR6,240e:e1:a000::/36,PROXY,no-resolve
+  - IP-CIDR6,240e:e9:6000::/37,PROXY,no-resolve
+  - IP-CIDR6,240e:ff:f000::/36,PROXY,no-resolve
+
   - IP-CIDR,64.233.177.188/32,no-resolve
   - IP-CIDR,64.233.186.188/32,no-resolve
   - IP-CIDR,64.233.187.188/32,no-resolve
