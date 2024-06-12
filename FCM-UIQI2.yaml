@@ -1,10 +1,10 @@
 payload:
-  - DOMAIN,mtalk.google.com,DIRECT
-  - DOMAIN,alt1-mtalk.google.com,🌍 全球直连
-  - DOMAIN,alt3-mtalk.google.com,🌍 全球直连
-  - DOMAIN,alt5-mtalk.google.com,🌍 全球直连
-  - DOMAIN,alt7-mtalk.google.com,🌍 全球直连
-  - DOMAIN,alt8-mtalk.google.com,🌍 全球直连
+  - DOMAIN,mtalk.google.com
+  - DOMAIN,alt1-mtalk.google.com
+  - DOMAIN,alt3-mtalk.google.com
+  - DOMAIN,alt5-mtalk.google.com
+  - DOMAIN,alt7-mtalk.google.com
+  - DOMAIN,alt8-mtalk.google.com
   - DOMAIN,alt2-mtalk.google.com
   - DOMAIN,alt4-mtalk.google.com
   - DOMAIN,alt6-mtalk.google.com
@@ -12,13 +12,12 @@ payload:
   - DOMAIN,alt2-mtalk.google.com
   - DOMAIN,alt4-mtalk.google.com
   - DOMAIN,alt6-mtalk.google.com
-  - DOMAIN,alt1-mtalk.google.com,🌍 全球直连
-  - DOMAIN,alt3-mtalk.google.com,🌍 全球直连
-  - DOMAIN,alt5-mtalk.google.com,🌍 全球直连
-  - DOMAIN,alt7-mtalk.google.com,🌍 全球直连
-  - DOMAIN,alt8-mtalk.google.com,🌍 全球直连
-  - DOMAIN,mtalk.google.com,DIRECT
-
+  - DOMAIN,alt1-mtalk.google.com
+  - DOMAIN,alt3-mtalk.google.com
+  - DOMAIN,alt5-mtalk.google.com
+  - DOMAIN,alt7-mtalk.google.com
+  - DOMAIN,alt8-mtalk.google.com
+  - DOMAIN,mtalk.google.com
   - IP-CIDR6,2404:6800::/32,no-resolve
   - IP-CIDR6,2401:3800::/32,no-resolve
   - IP-CIDR6,2404:6800:4008:c07::bc/128,no-resolve
@@ -26,11 +25,10 @@ payload:
   - IP-CIDR6,2607:f8b0:4023:1::bc/128,no-resolve
   - IP-CIDR6,2607:f8b0:4002:c03::bc/128,no-resolve
   - IP-CIDR6,240e:97c::/36,PROXY,no-resolve
-  - IP-CIDR6,240e:978:d00::/40,🌍 全球直连,no-resolve
-  - IP-CIDR6,240e:e1:a000::/36,🌍 全球直连,no-resolve
-  - IP-CIDR6,240e:e9:6000::/37,🌍 全球直连,no-resolve
-  - IP-CIDR6,240e:ff:f000::/36,🌍 全球直连,no-resolve
-
+  - IP-CIDR6,240e:978:d00::/40,no-resolve
+  - IP-CIDR6,240e:e1:a000::/36,no-resolve
+  - IP-CIDR6,240e:e9:6000::/37,no-resolve
+  - IP-CIDR6,240e:ff:f000::/36,no-resolve
   - IP-CIDR,64.233.177.188/32,no-resolve
   - IP-CIDR,64.233.186.188/32,no-resolve
   - IP-CIDR,64.233.187.188/32,no-resolve
