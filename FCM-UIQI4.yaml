@@ -20,8 +20,8 @@ payload:
   - IP-CIDR6,2404:6800::/32,no-resolve
   - IP-CIDR6,2401:3800::/32,no-resolve
   - IP-CIDR6,2607:f8b0::/32,no-resolve
-  - IP-CIDR6,240e:97c::/36,PROXY,no-resolve
-  - IP-CIDR6,240e:978:d00::/40,PROXY,no-resolve
-  - IP-CIDR6,240e:e1:a000::/36,PROXY,no-resolve
-  - IP-CIDR6,240e:e9:6000::/37,PROXY,no-resolve
-  - IP-CIDR6,240e:ff:f000::/36,PROXY,no-resolve
+  - IP-CIDR6,240e:97c::/36,no-resolve
+  - IP-CIDR6,240e:978:d00::/40,no-resolve
+  - IP-CIDR6,240e:e1:a000::/36,no-resolve
+  - IP-CIDR6,240e:e9:6000::/37,no-resolve
+  - IP-CIDR6,240e:ff:f000::/36,no-resolve
