@@ -1,4 +1,8 @@
-#自用分流修正
+#自用分流直连修正
 #作者-十七
+
 payload:
-  -
+    #微信FCM
+  - DOMAIN-SUFFIX,short.weixin.qq.com
+  - DOMAIN-SUFFIX,dns.weixin.qq.com.cn
+  - DOMAIN-SUFFIX,long.weixin.qq.com
