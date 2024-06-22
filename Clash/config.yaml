@@ -10,7 +10,6 @@ log-level: silent
 ipv6: true
 external-controller: 0.0.0.0:9999
 
-#面板默认Meta 可选Yacd 清除浏览器缓存即可重新加载
 external-ui: ./UI/Yacd
 secret: ""
 
