@@ -1,0 +1,383 @@
+mixed-port: 7890
+redir-port: 7891
+tproxy-port: 1536
+allow-lan: true
+mode: Rule
+geodata-mode: true
+geodata-loader: standard
+unified-delay: true
+log-level: silent
+ipv6: true
+external-controller: 0.0.0.0:9999
+
+#面板默认Meta 可选Yacd 清除浏览器缓存即可重新加载
+external-ui: ./UI/Yacd
+secret: ""
+
+tcp-concurrent: true
+enable-process: true
+find-process-mode: strict
+global-client-fingerprint: chrome
+
+#####################
+#修改配置文件时，建议先停止模块服务，再进行保存.
+#####################
+
+geo-auto-update: true
+geo-update-interval: 24
+geox-url:
+  geoip: "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat"
+  geosite: "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat"
+  mmdb: "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/country.mmdb"
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  override-destination: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  force-domain:
+    - "+.v2ex.com"
+  skip-domain:
+    - "Mijia Cloud"
+
+tun:
+  enable: false
+  device: tun0
+  stack: system
+  dns-hijack:
+    - "any:53"
+    - "tcp://any:53"
+  auto-route: true
+  auto-detect-interface: true
+  
+dns:
+  enable: true
+  prefer-h3: true
+  listen: 0.0.0.0:1053
+  ipv6: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.0/15
+  fake-ip-filter:
+    - "*"
+    - "+.lan"
+    - "connect.rom.miui.com"
+    - "localhost.ptlogin2.qq.com"
+  default-nameserver:
+    - 223.5.5.5
+    - 8.8.8.8
+  nameserver:
+    - "https://doh.pub/dns-query"
+    - "https://dns.alidns.com/dns-query"
+    
+    
+
+######### 锚点 start #######
+proxies:
+# 策略组相关
+pr: &pr
+  type: select  #手动选择节点   #url-test 自动选择节点
+  proxies: 
+  - 🎯 总模式
+  - 🌍 全球直连
+  - 🪩 境外流量
+  - 🔮 自动选择
+  - 🚫 拒绝出站
+  - 🇭🇰 香港
+  - 🇯🇵 日本
+  - 🇸🇬 新加坡
+  - 🇺🇲 美国
+  - 🧩 其它地区
+
+#策略组节点相关（手动）
+u: &u
+  type: select
+  use:
+  - 订阅地址名
+  
+#策略组节点相关（自动）
+ul: &ul
+  type: url-test
+  url: http://www.gstatic.com/generate_204
+  interval: 300
+  tolerance: 2
+  use:
+  - 订阅地址名
+
+#策略组节点相关（自动）
+ur: &ur
+  type: url-test    #必须，策略组的类型
+  url: http://www.gstatic.com/generate_204  #健康检查测试地址
+  interval: 300   #健康检测间隔，如不为 0 则启用定时测试，单位为秒
+  tolerance: 2
+
+#策略组节点相关（手动）
+ury: &ury
+  type: select    #必须，策略组的类型
+  
+#代理集订阅更新和延迟测试相关
+p: &p
+  type: http  #可选http/file
+  interval: 3600  #节点更新时间（毫秒）
+  # filter: "(?i)港|hk|hongkong|hong kong"  #关键字筛选节点,比如筛选出USA的节点
+  # exclude-filter: "xxx"   #规则表达式排除
+  # exclude-type: "ss|http"    #关键字排除 用 | 分隔
+  health-check:  #健康检测
+    enable: true  #是否启用检测
+      # lazy: false  #懒惰状态，默认为true,不使用该集合节点时，不进行测试
+    url: https://www.gstatic.com/generate_204  #检测地址 可选：https://cp.cloudflare.com
+    interval: 300  #检测间隔（毫秒）
+      # timeout: 3600  #健康检测超时时间（毫秒）
+      # expected-status: 200/302  #期望状态 可：200/302匹配 200 和 302 状态码 400-503匹配 400 到 503 状态码 200/302/400-503匹配 200 和 302 以及 400 到 503 状态码
+######### 锚点 end #######
+    
+#代理集（proxy-providers）
+proxy-providers:
+  订阅地址名:
+    <<: *p
+    path: "机场订阅链接"
+
+#策略组（proxy-groups）
+proxy-groups:
+#模式策略分类
+  - name: 🎯 总模式
+    type: select  #手动选择节点   #url-test 自动选择节点
+    proxies: 
+    - 🌍 全球直连
+    - 🪩 境外流量
+    - 🔮 自动选择
+    - 🚫 拒绝出站
+    - 🇭🇰 香港
+    - 🇯🇵 日本
+    - 🇸🇬 新加坡
+    - 🇺🇲 美国
+    - 🧩 其它地区
+    
+  - name: 🪩 境外流量
+    <<: *u
+    
+  - name: 🔮 自动选择
+    <<: *ul
+    
+#服务策略分类
+  - name: 📨 FCM推送服务
+    <<: *pr
+
+  - name: 📣 Google服务
+    <<: *pr
+
+  - name: 🎬 YouTube
+    <<: *pr
+    
+  - name: 🧸 Twitter
+    <<: *pr
+      
+  - name: 🎥 Netflix
+    <<: *pr
+    
+  - name: 📖 Facebook
+    <<: *pr
+    
+  - name: 📱 Telegram
+    <<: *pr
+    
+  - name: ⚙️ GitHub
+    <<: *pr
+    
+  - name: 🎧 Spotify
+    <<: *pr
+    
+  - name: 🪐 Messenger
+    <<: *ur
+    use:
+    - 订阅地址名
+    filter: "(?i)新|日|美"
+    
+  - name: 🤖 OpenAI
+    <<: *ur
+    use:
+    - 订阅地址名
+    filter: "(?i)新|日|美"
+    
+#机场分类
+  - name: 机场名随便起
+    <<: *ur
+    use:
+    - 订阅地址名
+
+#地区策略分类
+  - name: 🇭🇰 香港
+    <<: *u
+    filter: "(?i)港|hk|hongkong|hong kong"
+    exclude-filter: "美|日"  #屏蔽
+  
+  - name: 🇯🇵 日本
+    <<: *u
+    filter: "(?i)日本|jp|japan|Tokyo"
+
+  - name: 🇺🇲 美国
+    <<: *u
+    filter: "(?i)美|us|unitedstates|united states"
+
+  - name: 🇸🇬 新加坡
+    <<: *u
+    filter: "(?i)^(?!.*(?:us)).*(新|sg|singapore)"
+
+  - name: 🧩 其它地区
+    <<: *u
+    filter: "(?i)^(?!.*(?:🇭🇰|🇯🇵|🇺🇸|🇸🇬|🇨🇳|港|hk|hongkong|台|tw|taiwan|日|jp|japan|新|sg|singapore|美|us|unitedstates)).*"
+
+#出站策略分类
+  - name: 🌍 全球直连
+    type: select
+    proxies:
+      - DIRECT
+  
+  - name: 🚫 拒绝出站
+    type: select
+    proxies:
+      - REJECT
+
+  - name: 🐋 漏网之鱼
+    type: select
+    proxies:
+    - 🎯 总模式
+    - 🌍 全球直连
+    - 🚫 拒绝出站
+
+  # - name: 🛑 广告拦截
+    # type: select
+    # proxies:
+    # - 🚫 拒绝出站
+    # - 🎯 总模式
+    
+    
+#规则集预设
+rule-anchor:
+  ip: &ip
+    type: http
+    interval: 86400
+    proxy: ""
+    behavior: ipcidr
+    format: yaml
+    
+  domain: &domain
+    type: http
+    interval: 86400
+    proxy: ""
+    behavior: domain
+    format: yaml
+    
+  classical: &classical
+    type: http
+    interval: 86400
+    proxy: ""
+    behavior: classical
+    format: yaml
+#规则集（rule-providers）
+rule-providers:
+#classical分类
+  FCM:
+    <<: *classical
+    path: ./rule/FCM.yaml
+    url: "https://raw.githubusercontent.com/Elegy17/NetFlowNest/main/Clash/FCM.yaml"
+
+  Google:
+    <<: *classical
+    path: ./rule/Google.yaml
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Google/Google.yaml"
+
+  YouTube:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/YouTube/YouTube.yaml"
+    path: ./rule/YouTube.yaml
+    
+  GitHub:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/GitHub/GitHub.yaml"
+    path: ./rule/GitHub.yaml
+    
+  Spotify:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Spotify/Spotify.yaml"
+    path: ./rule/Spotify.yaml
+  
+  OpenAI:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/OpenAI/OpenAI.yaml"
+    path: ./rule/OpenAI.yaml
+    
+  分流修正:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/Elegy17/NetFlowNest/main/Clash/Shunt-Correction.yaml"
+    path: ./rule/分流修正.yaml
+  
+  规则修正:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/Elegy17/NetFlowNest/main/Clash/Rule-Amendments.yaml"
+    path: ./rule/规则修正.yaml
+    
+#IP分类
+  telegram_ip:
+    <<: *ip
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/telegramcidr.txt"
+    path: ./rule/telegram_ip.yaml
+
+
+#规则（rules）
+rules:
+    #劫持类
+  - AND,((NETWORK,UDP),(DST-PORT,123)),🌍 全球直连
+  - AND,((PROCESS-NAME,mihomo),(NOT,((IN-TYPE,inner)))),REJECT
+  - AND,((PROCESS-NAME,clash),(NOT,((IN-TYPE,inner)))),REJECT
+
+    #应用类
+  - PROCESS-NAME,com.facebook.orca,🪐 Messenger  #Messenger
+  - PROCESS-NAME,com.google.android.googlequicksearchbox,🇺🇲 美国
+  
+    #域名类
+   
+    #规则类
+  - RULE-SET,分流修正,🪩 境外流量
+  - RULE-SET,规则修正,🌍 全球直连
+  - RULE-SET,FCM,📨 FCM推送服务
+  - RULE-SET,telegram_ip,🪩 境外流量
+  - RULE-SET,YouTube,🎬 YouTube
+  - RULE-SET,GitHub,⚙️ GitHub
+  - RULE-SET,Spotify,🎧 Spotify
+  - RULE-SET,OpenAI,🤖 OpenAI
+  - RULE-SET,Google,📣 Google服务
+  
+    #GEOSITE类
+    # - GEOSITE,category-ads-all,🛑 广告拦截
+  - GEOSITE,CN,🌍 全球直连
+  - GEOSITE,apple-cn,🌍 全球直连
+  - GEOSITE,google-cn,🌍 全球直连
+  - GEOSITE,youtube,🎬 YouTube
+  
+    #GEOIP类
+  - GEOIP,private,🌍 全球直连,no-resolve
+  - GEOIP,CN,🌍 全球直连,no-resolve
+    #- GEOSITE,openai,🤖 OpenAI
+  - GEOIP,cloudflare,🪩 境外流量
+  - GEOIP,cloudfront,🪩 境外流量
+  - GEOIP,facebook,📖 Facebook
+  - GEOIP,fastly,🪩 境外流量
+    # - GEOIP,google,📣 Google服务
+  - GEOIP,netflix,🎥 Netflix
+  - GEOIP,telegram,📱 Telegram
+  - GEOIP,twitter,🧸 Twitter
+  
+    #通用类
+  - MATCH,🐋 漏网之鱼
