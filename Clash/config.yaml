@@ -18,9 +18,7 @@ enable-process: true
 find-process-mode: strict
 global-client-fingerprint: chrome
 
-#####################
-#修改配置文件时，建议先停止模块服务，再进行保存.
-#####################
+
 
 geo-auto-update: true
 geo-update-interval: 24
