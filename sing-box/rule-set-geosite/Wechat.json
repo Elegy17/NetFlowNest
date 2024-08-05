@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "domain": [
+        "short.weixin.qq.com",
+        "dns.weixin.qq.com.cn"
+      ]
+    }
+  ]
+}
