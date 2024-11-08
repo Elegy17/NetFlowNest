@@ -4,6 +4,7 @@
     {
       "domain": [
         "short.weixin.qq.com",
+        "extshort.weixin.qq.com",
         "dns.weixin.qq.com.cn",
         "long.weixin.qq.com"
       ]
