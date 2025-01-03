@@ -25,7 +25,7 @@ preferences:
   proxy: socks5://[用户名]:[密码]@[IP地址]:[端口] # 代理地址，选填。支持 socks5 和 http 代理，默认不使用代理。
 
 api_keys:
-- api: sk-* # API Key，用户使用本服务需要 API key，必填
+- api: sk-uiqi17 # API Key，用户使用本服务需要 API key，必填
 model:
   - gemini/*
 role: admin
