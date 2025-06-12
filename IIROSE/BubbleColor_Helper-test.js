@@ -1,3 +1,4 @@
+// 随机颜色变换
 (function () {
     const msgbox = document.querySelector('div.msgholderBox');
     
