@@ -1,3 +1,4 @@
+// 彩虹渐变
 (function () {
     const msgbox = document.querySelector('div.msgholderBox');
     
