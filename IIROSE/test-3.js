@@ -1,108 +1,101 @@
-// 动态彩虹渐变 - 增强无限色版
+// 动态彩虹渐变 - 增强无限色版 (修复版)
 (function () {
     const msgbox = document.querySelector('div.msgholderBox');
+    
+    // 获取当前用户ID (关键修复)
+    const uid = window.__IIROSE_VARS__?.user?.id || 
+                document.querySelector('div.myinfoBox')?.getAttribute('data-uid') ||
+                'default_uid';
 
     // 动态HSL参数
     let currentHue = Math.random() * 360; // 随机起始色相
     let hueDirection = Math.random() > 0.5 ? 1 : -1; // 随机色相变化方向
-    const baseSaturation = 85 + Math.random() * 15; // 基础饱和度 85-100%
-    const baseLightness = 60 + Math.random() * 20; // 基础亮度 60-80%
+    const baseSaturation = 85; // 固定高饱和度
+    const baseLightness = 70; // 固定中等亮度
 
-    // HSL转十六进制颜色 (优化算法)
+    // 更健壮的HSL转十六进制函数
     function hslToHex(h, s, l) {
-        h /= 360;
-        s /= 100;
-        l /= 100;
+        h = h % 360;
+        s = Math.min(100, Math.max(0, s)) / 100;
+        l = Math.min(100, Math.max(0, l)) / 100;
+        
+        const c = (1 - Math.abs(2 * l - 1)) * s;
+        const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+        const m = l - c / 2;
         
         let r, g, b;
-        if (s === 0) {
-            r = g = b = l; // 灰度
-        } else {
-            const hue2rgb = (p, q, t) => {
-                if (t < 0) t += 1;
-                if (t > 1) t -= 1;
-                if (t < 1/6) return p + (q - p) * 6 * t;
-                if (t < 1/2) return q;
-                if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-                return p;
-            };
-
-            const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-            const p = 2 * l - q;
-            r = hue2rgb(p, q, h + 1/3);
-            g = hue2rgb(p, q, h);
-            b = hue2rgb(p, q, h - 1/3);
-        }
+        if (h >= 0 && h < 60) [r, g, b] = [c, x, 0];
+        else if (h < 120) [r, g, b] = [x, c, 0];
+        else if (h < 180) [r, g, b] = [0, c, x];
+        else if (h < 240) [r, g, b] = [0, x, c];
+        else if (h < 300) [r, g, b] = [x, 0, c];
+        else [r, g, b] = [c, 0, x];
         
-        const toHex = x => {
-            const hex = Math.round(x * 255).toString(16);
-            return hex.length === 1 ? '0' + hex : hex;
-        };
-
-        return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
+        r = Math.round((r + m) * 255);
+        g = Math.round((g + m) * 255);
+        b = Math.round((b + m) * 255);
+        
+        return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`.toUpperCase();
     }
 
-    // 获取下一个渐变色 (完全随机化)
+    // 获取下一个渐变色 (简化版)
     function getNextGradientColor() {
-        // 随机化色相变化 (30-150度之间随机变化)
-        const hueChange = 30 + Math.random() * 120;
+        // 随机色相变化 (15-90度)
+        const hueChange = 15 + Math.random() * 75;
         currentHue = (currentHue + hueChange * hueDirection) % 360;
         
-        // 随机改变方向 (10%概率)
-        if (Math.random() < 0.1) hueDirection *= -1;
+        // 随机改变方向 (15%概率)
+        if (Math.random() < 0.15) hueDirection *= -1;
 
-        // 增强波浪效果
-        const timeFactor = Date.now() / 4000;
-        const waveFactor = 0.7 + 0.3 * (
-            Math.sin(timeFactor) * 0.6 + 
-            Math.cos(timeFactor * 0.7) * 0.4
-        );
-
-        // 动态饱和度和亮度 (更大的变化范围)
-        const saturation = baseSaturation * (0.8 + 0.2 * Math.sin(timeFactor * 1.2));
-        const lightness = baseLightness * (0.7 + 0.3 * Math.cos(timeFactor * 0.8));
-
+        // 波浪效果参数
+        const time = Date.now() / 3000; // 3秒周期
+        const wave = Math.sin(time) * 0.3 + 0.7;
+        
+        // 动态调整亮度和饱和度
+        const saturation = baseSaturation * (0.8 + 0.2 * Math.sin(time * 1.5));
+        const lightness = baseLightness * (0.7 + 0.3 * Math.cos(time * 0.8));
+        
         return hslToHex(currentHue, saturation, lightness);
     }
 
     // 观察消息变化
     const msgOB = new MutationObserver(mutations => {
-        for (const mutation of mutations) {
-            for (const node of mutation.addedNodes) {
-                if (node.nodeType === Node.ELEMENT_NODE) {
-                    const userId = node.getAttribute('data-id')?.split('_')[0];
-                    if (userId && userId == uid) {
-                        inputcolorhex = getNextGradientColor();
-                        break;
+        mutations.forEach(mutation => {
+            mutation.addedNodes.forEach(node => {
+                if (node.nodeType === 1) { // ELEMENT_NODE
+                    const msgId = node.getAttribute('data-id');
+                    if (msgId && msgId.startsWith(uid)) {
+                        // 设置气泡颜色
+                        const content = node.querySelector('.msg-content');
+                        if (content) {
+                            const newColor = getNextGradientColor();
+                            content.style.backgroundColor = newColor;
+                        }
                     }
                 }
-            }
-        }
+            });
+        });
     });
 
     msgOB.observe(msgbox, { 
         childList: true, 
-        subtree: true
+        subtree: true 
     });
 
-    // 增强平滑过渡效果
+    // 添加样式
     const style = document.createElement('style');
     style.textContent = `
         [data-id^="${uid}_"] .msg-content {
-            transition: 
-                background-color 0.7s cubic-bezier(0.33, 1, 0.68, 1),
-                box-shadow 0.4s ease;
+            transition: background-color 0.7s ease-out !important;
             background-blend-mode: overlay;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            border-radius: 12px !important;
         }
         [data-id^="${uid}_"] .msg-content:hover {
-            filter: brightness(1.08) saturate(1.2);
+            filter: brightness(1.06) saturate(1.1);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12);
         }
     `;
     document.head.appendChild(style);
-
-    // 初始随机颜色
-    inputcolorhex = getNextGradientColor();
 })();
