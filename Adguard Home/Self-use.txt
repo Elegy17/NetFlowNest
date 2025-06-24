@@ -5,4 +5,14 @@
 ! Version: 2025-06-25 01:23:01（北京时间）
 ! Description: 适用于AdGuard的去广告规则，合并优质上游规则并去重整理排列
 ! Total count: 1
-https://tortoise.goweike.cn/evt/list/spm
+||tortoise.goweike.cn^
+||lp.pinduoduo.com^
+||adim.pinduoduo.com^
+||apm-a.pinduoduo.com^
+||at-ipv6.pinduoduo.com^
+||images-1.pinduoduo.com^
+||images-2.pinduoduo.com^
+||apm.pinduoduo.com^
+||tc.pinduoduo.com^
+||xg.pinduoduo.com^
+||otk.pinduoduo.com^
