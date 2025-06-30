@@ -1,0 +1,15 @@
+# 这里可指定你需自定义放行
+# 为 Classical 类型 Text 格式
+
+# NAME: 自定义
+# AUTHOR: blackmatrix7
+# REPO: https://github.com/blackmatrix7/ios_rule_script
+# UPDATED: 2025-06-30 13:20:50
+# DOMAIN: 4
+# TOTAL: 4
+
+# 蔷薇花园 IIROSE
+DOMAIN-KEYWORD,iirose
+
+
+DOMAIN,zerfile.reifuu.icu
