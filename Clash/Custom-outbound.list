@@ -10,7 +10,9 @@
 
 # 蔷薇花园 IIROSE
 DOMAIN-KEYWORD,iirose
-
-
+# 能影响蔷薇花园,但不知道是什么的.
 DOMAIN,zerfile.reifuu.icu
 DOMAIN-KEYWORD,ipinfo
+
+# 爪子云
+DOMAIN-KEYWORD,run.claw.cloud
