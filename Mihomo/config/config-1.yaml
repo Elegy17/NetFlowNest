@@ -1,0 +1,168 @@
+# 机场订阅
+proxy-providers:
+  魔戒:
+    type: http
+    url: "https://msub.xn--bwwx30f.top/api/v1/client/subscribe?token=97b5638446c2fc02d2f20f7c0eec802a"
+    path: ./proxy_provider/魔戒.yaml
+    filter: "^(?!.*(套餐|重置|剩余|到期|订阅|群|账户|流量|有效期|时间|官网|失联|余额|流量)).*$"
+    interval: 86400
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204 # https://cp.cloudflare.com
+      interval: 300
+    proxy: 國內代理
+
+# 全局配置
+port: 7890 # http(s) 代理端口
+socks-port: 7891 # socks4/4a/5 代理端口
+mixed-port: 7892 # 混合端口
+redir-port: 9797 # redirect 透明代理端口，仅能代理 TCP 流量
+tproxy-port: 9898 # tproxy 透明代理端口，可代理 TCP 与 UDP 流量
+ipv6: true
+mode: Rule # 运行模式  Rele: 規則/global: 全局/direct: 全局直连
+allow-lan: true # 允许局域网
+bind-address: '*' # 允許IP鍛
+unified-delay: true # 統一延遲
+tcp-concurrent: true # TCP 并发
+log-level: error # 日誌 silent/error/warning/info/debug
+find-process-mode: always # 進程匹配模式 always/strict/off
+global-client-fingerprint: chrome # random # 全局客户端指纹
+global-ua: clash.meta # 全局ua
+disable-keep-alive: false # TCP Keep Alive 设置
+keep-alive-interval: 15
+keep-alive-idle: 600
+# 緩存
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+# 控制面板
+external-controller: 0.0.0.0:9090
+secret: "Xeran"
+external-ui: ./UI/
+external-ui-name: zashboard # MetaCubeXD/zashboard
+external-ui-url: "https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip" # "https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip"
+
+# 域名嗅探
+sniffer:
+  enable: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  force-domain: # 強制嗅探的域名列表，使用域名通配
+    - "+.v2ex.com"
+  skip-domain: # 跳过嗅探的域名列表，使用域名通配
+    - "+.qq.com"
+    - "+.wechatapp.com"
+    - "+.wechat.com"
+
+# 入站
+tun:
+  enable: true
+  stack: gvisor # system/gvisor/mixed
+  device: utun0 # 網卡名稱
+  auto-route: true # 自动设置全局路由，可以自动将全局流量路由进入 tun 网卡。
+  auto-redirect: true # 自动配置 iptables/nftables 以重定向 TCP 连接，需要auto-route已启用
+  auto-detect-interface: true # 自动选择流量出口接口，多出口网卡同时连接的设备建议手动指定出口网卡
+  dns-hijack: # dns 劫持，将匹配到的连接导入内部 dns 模块，不书写协议则为 udp://
+    - "any:53"
+    - "tcp://any:53"
+  strict-route: true # 启用 auto-route 时执行严格的路由规则
+
+# DNS
+dns:
+  enable: true
+  listen: 0.0.0.0:1053 # 監聽端口
+  ipv6: true
+  respect-rules: true # 遵循路由規則
+  enhanced-mode: fake-ip #處理模式 fake-ip/redir-host
+  fake-ip-range: 28.0.0.1/8 # fake-ip 池
+  fake-ip-filter-mode: blacklist # 嘿白名單 blacklist/whitelist
+  fake-ip-filter: # fakeip 过滤，以下地址不会下发 fakeip 映射用于连接 [值支持域名通配以及引入域名集合]
+    - "rule-set:Fake-IP-Filter"
+    - '*.lan'
+    - "+.local"
+    - "+.market.xiaomi.com"
+  default-nameserver: # 默認DNS解析
+    - 223.5.5.5
+    - 119.29.29.29
+  direct-nameserver: # 直連DNS服務
+    - 223.5.5.5
+  direct-nameserver-follow-policy: false # 是否遵循 nameserver-policy，默认为不遵守，仅当 direct-nameserver 不为空时生效
+  proxy-server-nameserver: # 代理节点域名解析服务器，仅用于解析代理节点的域名，如果不填则遵循 nameserver-policy、nameserver 和 fallback 的配置
+    - 223.5.5.5
+    - 119.29.29.29
+  nameserver-policy: # 指定域名查询的解析服务器，可使用 geosite, 优先于 nameserver/fallback 查询 [键支持域名通配] [值支持字符串/数组]
+    '+.baidu.com': '114.114.114.114'
+    "rule-set:cn_domain,private_domain":
+      - 223.5.5.5
+      - 119.29.29.29
+    "rule-set:proxy_domain":
+      - tls://8.8.8.8#默認代理
+      - tls://8.8.4.4#默認代理
+      - tls://1.1.1.1#默認代理&h3=true
+  nameserver: # 國內DNS請求
+    - 223.5.5.5
+    - 119.29.29.29
+  fallback: # 國外DNS請求
+    - tls://8.8.8.8
+    - tls://8.8.4.4
+    - tls://1.1.1.1
+  fallback-filter: # 后备域名解析服务器筛选，满足条件的将使用 fallback结果或只使用 fallback解析
+    geoip: true
+    geoip-code: CN # 匹配到這個定義爲沒有污染使用nameserver解析
+    geosite: # 以下爲定義污染使用fallback解析
+      - gfw
+    ipcidr:
+      - 240.0.0.0/4
+    domain:
+      - "+.google.com"
+      - "+.facebook.com"
+      - "+.youtube.com"
+      - "+.twitter.com"
+      - "+.github.com"
+
+# 出站策略
+proxies:
+  - {name: DNS_Hijack, type: dns}
+  - {name: 國內直連, type: direct, udp: true}
+  - {name: 拒絕連接, type: reject}
+proxy-groups:
+  # 排除類型: exclude-type: "dns"
+  - {name: 默認代理, type: select, proxies: [自動選擇, 負載均衡, 故障轉移, 國內直連, 拒絕連接], icon: https://gitlab.com/akikawa/backup/-/raw/main/IconSet/Color/Star.png}
+  - {name: 負載均衡, type: load-balance, include-all-providers: true, strategy: consistent-hashing, icon: https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg}
+  - {name: 自動選擇, type: url-test, include-all-providers: true, icon: https://gitlab.com/akikawa/backup/-/raw/main/IconSet/Color/Auto.png}
+  - {name: 故障轉移, type: fallback, include-all-providers: true, icon: https://gitlab.com/akikawa/backup/-/raw/main/IconSet/Color/Back.png}
+  - {name: 國外代理, type: select, proxies: [默認代理, 自動選擇, 負載均衡, 故障轉移,國內直連, 拒絕連接], include-all-providers: true, icon: https://ghfast.top/raw.githubusercontent.com/Koolson/Qure/refs/heads/master/IconSet/Color/Proxy.png}
+  - {name: 國內代理, type: select, proxies: [國內直連, 拒絕連接], icon: https://ghfast.top/raw.githubusercontent.com/Koolson/Qure/refs/heads/master/IconSet/Color/China.png}
+  - {name: FCM推送, type: select, proxies: [國內直連], include-all-providers: true, icon: https://gitlab.com/akikawa/backup/-/raw/main/IconSet/Color/Mail.png}
+  - {name: 漏網之魚, type: select, proxies: [國外代理, 國內直連], icon: https://ghfast.top/raw.githubusercontent.com/Koolson/Qure/refs/heads/master/IconSet/Color/Final.png}
+
+# 规则匹配
+rules:
+  - DST-PORT,53,DNS_Hijack
+  - DST-PORT,5228,FCM推送
+  - RULE-SET,proxy_domain,國外代理
+  - DOMAIN-REGEX,^.*mtalk.google.com,FCM推送
+  - OR,((RULE-SET,cn_ip),(RULE-SET,cn_domain),(RULE-SET,private_ip),(RULE-SET,private_domain)),國內代理
+  - MATCH,漏網之魚
+
+# 规则集
+rule-anchor:
+  classical: &classical { type: http, behavior: classical, format: text, interval: 86400}
+  ipcidr: &ipcidr { type: http, behavior: ipcidr, format: mrs, interval: 86400}
+  domain: &domain { type: http, behavior: domain, format: mrs, interval: 86400}
+  local: &local { type: file, behavior: classical, format: text, interval: 86400}
+rule-providers:
+  Fake-IP-Filter: { <<: *domain, path: ./Rule/Fake-IP-Filter.mrs, proxy: DIRECT, url: "https://ghfast.top/github.com/DustinWin/ruleset_geodata/raw/refs/heads/mihomo-ruleset/fakeip-filter.mrs"}
+  proxy_domain: { <<: *domain, path: ./Rule/proxy_domain.mrs, proxy: DIRECT, url: "https://ghfast.top/github.com/DustinWin/ruleset_geodata/raw/refs/heads/mihomo-ruleset/proxy.mrs"}
+  private_domain: { <<: *domain, path: ./Rule/private_domain.mrs, proxy: DIRECT, url: "https://ghfast.top/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/private.mrs"}
+  cn_domain: { <<: *domain, path: ./Rule/cn_domain.mrs, proxy: DIRECT, url: "https://ghfast.top/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cn.mrs"}
+
+  cn_ip: { <<: *ipcidr, path: ./Rule/cn_ip.mrs, proxy: DIRECT, url: "https://ghfast.top/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/cn.mrs"}
+  private_ip: { <<: *ipcidr, path: ./Rule/private_ip.mrs, proxy: DIRECT, url: "https://ghfast.top/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/private.mrs"}
