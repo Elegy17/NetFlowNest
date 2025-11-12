@@ -101,10 +101,10 @@ dns:
 
 # 机场订阅
 proxy-providers:
-  魔戒:
+  proxy:
     type: http
-    url: "https://msub.xn--bwwx30f.top/api/v1/client/subscribe?token=97b5638446c2fc02d2f20f7c0eec802a"
-    path: ./proxy_provider/魔戒.yaml
+    url: ""
+    path: ./proxy_provider/proxy.yaml
     filter: "^(?!.*(套餐|重置|剩余|到期|订阅|群|账户|流量|有效期|时间|官网|失联|余额|流量)).*$"
     interval: 86400
     health-check:
