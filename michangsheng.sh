@@ -6,7 +6,7 @@ RESET='\033[0m'
 
 # 配置目标安装目录（home根目录下的personal-website/觅长生）
 INSTALL_DIR="$HOME/personal-website/觅长生"
-LAUNCHER_URL="https://raw.githubusercontent.com/Hyson-9527/zy-fx-mcs/main/michangsheng.sh"
+LAUNCHER_URL="https://raw.githubusercontent.com/Elegy17/NetFlowNest/refs/heads/main/michangsheng.sh"
 LAUNCHER_NAME="michangsheng.sh"
 CONFIG_FILE="tianjice.conf"
 
