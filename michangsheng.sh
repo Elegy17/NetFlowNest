@@ -3,7 +3,7 @@ GREEN='\033[1;32m'
 YELLOW='\033[1;33m'
 CYAN='\033[1;36m'
 RESET='\033[0m'
-LAUNCHER_URL="https://raw.githubusercontent.com/Hyson-9527/zy-fx-mcs/main/michangsheng.sh"
+LAUNCHER_URL="https://raw.githubusercontent.com/Elegy17/NetFlowNest/refs/heads/main/michangsheng.sh"
 
 # 强制创建目标目录，避免路径不存在报错
 mkdir -p "$HOME/personal-website/觅长生"
