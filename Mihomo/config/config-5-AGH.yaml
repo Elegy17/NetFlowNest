@@ -1,0 +1,148 @@
+######### 锚点 start #######
+# 策略组相关
+pr: &pr {type: select, proxies: [默認代理, 自動選擇, 手動選擇, 負載均衡, 故障轉移, 國內直連, 拒絕連接]}
+#这里是订阅更新和延迟测试相关的
+p: &p {type: http, interval: 86400, health-check: {enable: true, url: "https://www.gstatic.com/generate_204", interval: 300}}
+######### 锚点 end #######
+
+# 机场订阅
+proxy-providers:
+  机场:
+    <<: *p
+    url: ""
+    path: ./proxy_provider/机场.yaml
+    filter: "^(?!.*(套餐|重置|剩余|到期|订阅|群|账户|流量|有效期|时间|官网|失联|余额|流量)).*$"
+
+# 全局配置
+port: 7890
+socks-port: 7891
+mixed-port: 7892
+redir-port: 9797
+tproxy-port: 9898
+ipv6: true
+mode: Rule
+allow-lan: true
+bind-address: '*'
+unified-delay: true
+tcp-concurrent: true
+log-level: error # silent/error/warning/info/debug
+find-process-mode: always # always/strict/off
+global-client-fingerprint: chrome # random
+global-ua: clash.meta
+disable-keep-alive: false
+keep-alive-interval: 15
+keep-alive-idle: 600
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+# 控制面板
+external-controller: 0.0.0.0:9090
+secret: ""
+external-ui: ./UI/
+external-ui-name: zashboard # MetaCubeXD/zashboard
+external-ui-url: "https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip" # "https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip"
+
+# 域名嗅探
+sniffer:
+  enable: true
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  force-domain:
+    - "+.v2ex.com"
+  skip-domain:
+    - "+.qq.com"
+    - "+.wechatapp.com"
+    - "+.wechat.com"
+
+# 入站
+tun:
+  exclude-package: []
+  enable: true
+  stack: gvisor # system/gvisor/mixed
+  device: utun
+  auto-route: true
+  strict-route: true
+  auto-redirect: true
+  auto-detect-interface: true
+  dns-hijack:
+    - "any:53"
+    - "tcp://any:53"
+
+# DNS
+dns:
+  enable: true
+  cache-algorithm: arc
+  listen: 0.0.0.0:1053
+  prefer-h3: false
+  use-hosts: true
+  use-system-hosts: true
+  ipv6: false
+  ipv6-timeout: 300
+  respect-rules: false # 遵循路由規則
+  enhanced-mode: fake-ip # fake-ip/redir-host
+  fake-ip-range: 198.18.0.1/16 # 198.18.0.1/16 28.0.0.1/8
+  fake-ip-filter-mode: blacklist # blacklist/whitelist
+  fake-ip-filter:
+    - "rule-set:Fake-IP-Filter"
+    - "rule-set:private_domain,cn_domain"
+    - '*.lan'
+    - '*.ntp.*'
+    - "+.local"
+    - "+.market.xiaomi.com"
+    - "+.mtalk.google.com"
+  default-nameserver: # 默認DNS解析
+    # - 127.0.0.1:5591
+    - 223.5.5.5
+    - 119.29.29.29
+    - system
+  nameserver: # 國內DNS請求
+    - 127.0.0.1:5591
+    # - 223.5.5.5
+    # - 119.29.29.29
+
+# 出站策略
+proxies:
+  - {name: DNS_Hijack, type: dns}
+  - {name: 國內直連, type: direct, udp: true}
+  - {name: 拒絕連接, type: reject}
+proxy-groups:
+  - {name: 默認代理, type: select, proxies: [自動選擇, 手動選擇, 負載均衡, 故障轉移, 國內直連, 拒絕連接], icon: https://cdn.jsdelivr.net/gh/Elegy17/NetFlowNest@main/Mihomo/icon/Star.png}
+  - {name: 國內代理, type: select, proxies: [國內直連, 拒絕連接], icon: https://cdn.jsdelivr.net/gh/Elegy17/NetFlowNest@main/Mihomo/icon/China.png}
+  - {name: 自動選擇, type: url-test, include-all-providers: true, icon: https://cdn.jsdelivr.net/gh/Elegy17/NetFlowNest@main/Mihomo/icon/Auto.png}
+  - {name: 手動選擇, type: select, include-all-providers: true, icon: https://cdn.jsdelivr.net/gh/Elegy17/NetFlowNest@main/Mihomo/icon/manual.svg}
+  - {name: 負載均衡, type: load-balance, include-all-providers: true, strategy: consistent-hashing, icon: https://cdn.jsdelivr.net/gh/Elegy17/NetFlowNest@main/Mihomo/icon/Load-Balancing.svg}
+  - {name: 故障轉移, type: fallback, include-all-providers: true, icon: https://cdn.jsdelivr.net/gh/Elegy17/NetFlowNest@main/Mihomo/icon/Back.png}
+  - {name: FCM推送, type: select, proxies: [國內直連, 默認代理], icon: https://cdn.jsdelivr.net/gh/Elegy17/NetFlowNest@main/Mihomo/icon/Mail.png}
+  - {name: 漏網之魚, type: select, proxies: [默認代理, 國內直連], icon: https://cdn.jsdelivr.net/gh/Elegy17/NetFlowNest@main/Mihomo/icon/Final.png}
+
+# 规则匹配
+rules:
+  - DST-PORT,53,DNS_Hijack
+  - DST-PORT,5228,FCM推送
+  - RULE-SET,proxy_domain,默認代理
+  - DOMAIN-REGEX,^.*mtalk.google.com,FCM推送
+  - OR,((RULE-SET,cn_ip),(RULE-SET,cn_domain),(RULE-SET,private_ip),(RULE-SET,private_domain)),國內代理
+  - MATCH,漏網之魚
+
+# 规则集
+rule-anchor:
+  classical: &classical { type: http, behavior: classical, format: text, interval: 86400}
+  ipcidr: &ipcidr { type: http, behavior: ipcidr, format: mrs, interval: 86400}
+  domain: &domain { type: http, behavior: domain, format: mrs, interval: 86400}
+  local: &local { type: file, behavior: classical, format: text, interval: 86400}
+rule-providers:
+  # 域名
+  Fake-IP-Filter: { <<: *domain, path: ./Rule/Fake-IP-Filter.mrs, proxy: DIRECT, url: "https://ghfast.top/github.com/DustinWin/ruleset_geodata/raw/refs/heads/mihomo-ruleset/fakeip-filter.mrs"}
+  proxy_domain: { <<: *domain, path: ./Rule/proxy_domain.mrs, proxy: DIRECT, url: "https://ghfast.top/github.com/DustinWin/ruleset_geodata/raw/refs/heads/mihomo-ruleset/proxy.mrs"}
+  private_domain: { <<: *domain, path: ./Rule/private_domain.mrs, proxy: DIRECT, url: "https://ghfast.top/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/private.mrs"}
+  cn_domain: { <<: *domain, path: ./Rule/cn_domain.mrs, proxy: DIRECT, url: "https://ghfast.top/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cn.mrs"}
+  # IP
+  cn_ip: { <<: *ipcidr, path: ./Rule/cn_ip.mrs, proxy: DIRECT, url: "https://ghfast.top/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/cn.mrs"}
+  private_ip: { <<: *ipcidr, path: ./Rule/private_ip.mrs, proxy: DIRECT, url: "https://ghfast.top/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/private.mrs"}
