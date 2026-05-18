@@ -35,7 +35,6 @@ dns:
   fake-ip-filter-mode: rule
   fake-ip-filter:
     - RULE-SET,proxy_domain,fake-ip
-    - RULE-SET,直连名单,real-ip
     - RULE-SET,Fake-IP-Filter,real-ip
     - RULE-SET,private_domain,real-ip
     - RULE-SET,cn_domain,real-ip
