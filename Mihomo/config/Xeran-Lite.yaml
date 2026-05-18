@@ -1,0 +1,136 @@
+pr: &pr {type: select, proxies: [默認代理, 自動選擇, 手動選擇, 負載均衡, 故障轉移, 國內直連, 拒絕連接]}
+urltest: &urltest {url: 'https://www.gstatic.com/generate_204', interval: 300, lazy: false, timeout: 5000, max-failed-times: 5}
+p: &p {type: http, interval: 86400, health-check: {enable: true, url: "https://www.gstatic.com/generate_204", interval: 300, timeout: 1000, tolerance: 100, lazy: false, exclude-filter: '(?i)官网|邀请|到期|流量|更新|验证|剩余|频道|长期|推广|分享|周期|我的'}, proxy: 國內直連, header: {User-Agent: ["ClashMetaForAndroid/2.11.28"]}}
+
+port: 7890
+socks-port: 7891
+mixed-port: 7892
+redir-port: 7893
+tproxy-port: 7894
+ipv6: true
+mode: Rule
+allow-lan: true
+bind-address: '*'
+unified-delay: true
+tcp-concurrent: true
+log-level: error
+find-process-mode: always
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+external-controller: 0.0.0.0:9090
+external-ui: WebUI
+external-ui-url: "https://github.com/MetaCubeX/metacubexd/releases/latest/download/compressed-dist.tgz"
+
+dns:
+  enable: true
+  prefer-h3: true
+  ipv6: true
+  listen: 0.0.0.0:1053
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-range6: fdfe:dcba:9876::1/64
+  fake-ip-filter-mode: rule
+  fake-ip-filter:
+    - RULE-SET,proxy_domain,fake-ip
+    - RULE-SET,直连名单,real-ip
+    - RULE-SET,Fake-IP-Filter,real-ip
+    - RULE-SET,private_domain,real-ip
+    - RULE-SET,cn_domain,real-ip
+    - MATCH,fake-ip
+  nameserver-policy:
+    'rule-set:秋风广告规则': [rcode://success]
+    "rule-set:cn_domain,private_domain": [https://dns.alidns.com/dns-query, https://doh.pub/dns-query]
+    "rule-set:proxy_domain": [tls://8.8.8.8#默認代理&h3=true, tls://1.1.1.1#默認代理&h3=true]
+  nameserver:
+    - quic://dns.alidns.com:853
+    - https://doh.pub/dns-query
+
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  override-destination: false
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+
+tun:
+  enable: true
+  stack: mixed
+  device: Meta
+  auto-route: true
+  strict-route: true
+  auto-redirect: false
+  auto-detect-interface: true
+  dns-hijack: ["any:53", "tcp://any:53"]
+
+proxy-providers:
+  机场:
+    <<: *p
+    url: "链接"
+    path: proxy_provider/机场
+
+proxies:
+  - {name: 國內直連, type: direct, udp: true}
+  - {name: 拒絕連接, type: reject}
+proxy-groups:
+  - {name: 默認代理, <<: *urltest, type: select, proxies: [自動選擇, 手動選擇, 負載均衡, 故障轉移, 國內直連, 拒絕連接], icon: https://cdn.jsdelivr.net/gh/Elegy17/NetFlowNest@main/Mihomo/icon/Star.png}
+  - {name: 自動選擇, <<: *urltest, type: url-test, include-all-providers: true, icon: https://cdn.jsdelivr.net/gh/Elegy17/NetFlowNest@main/Mihomo/icon/Auto.png}
+  - {name: 手動選擇, <<: *urltest, type: select, include-all-providers: true, icon: https://cdn.jsdelivr.net/gh/Elegy17/NetFlowNest@main/Mihomo/icon/manual.svg}
+  - {name: 負載均衡, <<: *urltest, type: load-balance, include-all-providers: true, strategy: consistent-hashing, icon: https://cdn.jsdelivr.net/gh/Elegy17/NetFlowNest@main/Mihomo/icon/Load-Balancing.svg}
+  - {name: 故障轉移, <<: *urltest, type: fallback, include-all-providers: true, icon: https://cdn.jsdelivr.net/gh/Elegy17/NetFlowNest@main/Mihomo/icon/Back.png}
+  - {name: FCM推送, <<: *urltest, type: select, proxies: [國內直連, 默認代理], icon: https://cdn.jsdelivr.net/gh/Elegy17/NetFlowNest@main/Mihomo/icon/Mail.png}
+  - {name: 漏網之魚, <<: *urltest, type: select, proxies: [默認代理, 國內直連], icon: https://cdn.jsdelivr.net/gh/Elegy17/NetFlowNest@main/Mihomo/icon/Final.png}
+
+rule-anchor:
+  IPCIDR: &IPCIDR { type: http, behavior: ipcidr, format: mrs, interval: 86400}
+  Domain: &Domain { type: http, behavior: domain, format: mrs, interval: 86400}
+  Classical: &Classical { type: http, behavior: classical, format: yaml, interval: 86400}
+  Local: &Local { type: file, behavior: classical, format: text, interval: 86400}
+
+rule-providers:
+  Fake-IP-Filter: { <<: *Domain, path: ./Rule/Fake-IP-Filter.mrs, url: "https://ghfast.top/github.com/DustinWin/ruleset_geodata/raw/refs/heads/mihomo-ruleset/fakeip-filter.mrs"}
+  proxy_domain: { <<: *Domain, path: ./Rule/proxy_domain.mrs, url: "https://ghfast.top/github.com/DustinWin/ruleset_geodata/raw/refs/heads/mihomo-ruleset/proxy.mrs"}
+  private_domain: { <<: *Domain, path: ./Rule/private_domain.mrs, url: "https://ghfast.top/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/private.mrs"}
+  cn_domain: { <<: *Domain, path: ./Rule/cn_domain.mrs, url: "https://ghfast.top/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/cn.mrs"}
+  秋风广告规则: { <<: *Domain, path: ./Rule/AWAvenue-Ads-Rule-Clash.mrs, url: "https://github.boki.moe/https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Clash.mrs"}
+  GoogleFCM_域: {<<: *Domain, path: ./Rule/GoogleFCM.mrs, url: "https://cdn.jsdelivr.net/gh/GitMetaio/rule@master/rule/Clash/GoogleFCM/GoogleFCM_OCD_Domain.mrs"}
+  Google_Gemini: {<<: *Domain, path: ./Rule/Google_Gemini.mrs, url: "https://ghfast.top/github.com/MetaCubeX/meta-rules-dat/blob/meta/geo/geosite/google-gemini.mrs"}
+  Google: {<<: *Domain, path: ./Rule/Google.mrs, url: "https://ghfast.top/github.com/MetaCubeX/meta-rules-dat/blob/meta/geo/geosite/google.mrs"}
+  Telegram: {<<: *Domain, path: ./Rule/Telegram.mrs, url: "https://ghfast.top/github.com/MetaCubeX/meta-rules-dat/blob/meta/geo/geosite/telegram.mrs"}
+
+  GoogleFCM_IP: { <<: *IPCIDR, path: ./Rule/GoogleFCM_IP.mrs, url: "https://cdn.jsdelivr.net/gh/GitMetaio/rule@master/rule/Clash/GoogleFCM/GoogleFCM_OCD_IP.mrs"}
+  cn_ip: { <<: *IPCIDR, path: ./Rule/cn_ip.mrs, url: "https://ghfast.top/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/cn.mrs"}
+  Google-IP: { <<: *IPCIDR, path: ./Rule/Google-ip.mrs, url: "https://ghfast.top/github.com/MetaCubeX/meta-rules-dat/blob/meta/geo/geoip/google.mrs"}
+  private_IP: { <<: *IPCIDR, path: ./Rule/private_IP.mrs, url: "https://ghfast.top/github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/private.mrs"}
+  Telegram-IP: { <<: *IPCIDR, path: ./Rule/Telegram-IP.mrs, url: "https://ghfast.top/github.com/MetaCubeX/meta-rules-dat/blob/meta/geo/geoip/telegram.mrs"}
+
+rules:
+  - OR,((RULE-SET,cn_ip),(RULE-SET,cn_domain),(RULE-SET,private_IP),(RULE-SET,private_domain)),國內直連
+  - SUB-RULE,(OR,((NETWORK,TCP),(NETWORK,UDP))),FCM
+  - SUB-RULE,(OR,((NETWORK,TCP),(NETWORK,UDP))),Google
+  - SUB-RULE,(OR,((NETWORK,TCP),(NETWORK,UDP))),Telegram
+  - OR, ((RULE-SET,proxy_domain)),默認代理
+  - MATCH,漏網之魚
+
+sub-rules:
+  FCM:
+    - DST-PORT,5228,FCM推送
+    - DOMAIN-REGEX,^.*mtalk.google.com,FCM推送
+    - RULE-SET,GoogleFCM_域,FCM推送
+    - RULE-SET,GoogleFCM_IP,FCM推送
+  Google:
+    - RULE-SET,Google,默認代理
+    - RULE-SET,Google-IP,默認代理
+    - RULE-SET,Google_Gemini,默認代理
+  Telegram:
+    - RULE-SET,Telegram,默認代理
+    - RULE-SET,Telegram-IP,默認代理
